@@ -5,9 +5,19 @@ const Venue = require("mongoose").model("Venue");
 const Event = require("mongoose").model("Event");
 const Guest = require("mongoose").model("Guest");
 
-
 const router = new express.Router();
 
+// require nodemailer 
+const nodemailer = require('nodemailer');
+// configure email Transporter
+const smtpTransport = nodemailer.createTransport({
+    service: "gmail",
+    host: "smtp.gmail.com",
+    auth: {
+        user:"appcreate3@gmail.com",
+        pass:"CreateCreate"
+    }
+});
 /* 
 api routes that require authentication go below
 */
@@ -133,7 +143,7 @@ router.get("/guest/:guestId", (req, res) => {
     
 }); 
 
-// guest routes 
+// route to create a new guest
 router.post("/guest", (req, res) => {
     console.log("received api/guest POST request:", req.body);
     // create a new guest record, via the guest schema, from the request data
@@ -151,7 +161,27 @@ router.post("/guest", (req, res) => {
                 res.status(500).json({message: err})
             };
         // if no errors.
-    } else {
+        } else {
+            // sending automatic email with nodemailer for a created guest
+            //creating the message 
+            const mailOptions={
+                to: doc.email,
+                subject: " You have been invited to event ",
+                text: " This the Text of your invite this should have all the information reguarding the show "
+            }
+            // console.log message 
+            console.log(mailOptions);
+            // sending the message using smtpTransport
+                smtpTransport.sendMail(mailOptions, function(error, response){
+                    if(error){
+                        console.log(error);
+                        res.end("error");
+                    }else{
+                        console.log("Message sent : " + response.message);
+                    }
+                });
+
+
             //push this guest id to the event as a guest 
             Event.findOneAndUpdate(
                 {"_id": req.body.eventId},
