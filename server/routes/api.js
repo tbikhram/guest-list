@@ -12,7 +12,7 @@ const nodemailer = require('nodemailer');
 // configure email Transporter
 const smtpTransport = nodemailer.createTransport({
     service: "gmail",
-    host: "smtp.gmail.com",
+    
     auth: {
         user:"appcreate3@gmail.com",
         pass:"CreateCreate"
